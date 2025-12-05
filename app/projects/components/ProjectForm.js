@@ -36,15 +36,15 @@ export default function ProjectForm({ onSubmit, onCancel, isOpen }) {
     const relativePathRegex = /^\//;
     
     if (imageUrl && !externalUrlRegex.test(imageUrl) && !relativePathRegex.test(imageUrl)) {
-      newErrors.imageUrl = 'Please enter a valid URL or relative path (e.g., /images/project.jpg)';
+      newErrors.imageUrl = 'Please enter a valid URL';
     }
     
     if (projectUrl && !externalUrlRegex.test(projectUrl)) {
-      newErrors.projectUrl = 'Please enter a valid URL (must start with http:// or https://)';
+      newErrors.projectUrl = 'Please enter a valid URL';
     }
     
     if (githubUrl && !externalUrlRegex.test(githubUrl)) {
-      newErrors.githubUrl = 'Please enter a valid URL (must start with http:// or https://)';
+      newErrors.githubUrl = 'Please enter a valid URL';
     }
     
     setErrors(newErrors);
@@ -103,7 +103,7 @@ export default function ProjectForm({ onSubmit, onCancel, isOpen }) {
           {/* Title */}
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-              Title <span className="text-red-500">*</span>
+              Project Title <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -125,7 +125,7 @@ export default function ProjectForm({ onSubmit, onCancel, isOpen }) {
           {/* Description */}
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-              Description <span className="text-red-500">*</span>
+              Project Description <span className="text-red-500">*</span>
             </label>
             <textarea
               id="description"
@@ -247,7 +247,7 @@ export default function ProjectForm({ onSubmit, onCancel, isOpen }) {
               disabled={isLoading}
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'Adding...' : 'Add Project'}
+              {isLoading ? 'Creating Project...' : 'Create Project'}
             </button>
           </div>
         </form>

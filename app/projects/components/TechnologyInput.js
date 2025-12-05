@@ -31,7 +31,7 @@ export default function TechnologyInput({ technologies = [], onChange, error }) 
     onChange(technologies.filter(tech => tech !== deletedTech));
   }
 
-  const handleKeyPress = (e) => {
+  const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       //preventDefault prevents submission when pressing enter key
       e.preventDefault();
@@ -46,8 +46,8 @@ export default function TechnologyInput({ technologies = [], onChange, error }) 
           type="text"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder="Enter a technology..."
+          onKeyDown={handleKeyDown}
+          placeholder="Type a technology..."
           className={`flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
             error 
               ? 'border-red-500 focus:ring-red-500' 
@@ -92,20 +92,17 @@ export default function TechnologyInput({ technologies = [], onChange, error }) 
       <div>
         <p className="text-sm text-gray-600 mb-2">Quick add:</p>
         <div className="flex flex-wrap gap-2">
-          {quickTechs.map((tech) => (
-            <button
-              key={tech}
-              onClick={() => addTech(tech)}
-              disabled={technologies.includes(tech)}
-              className={`px-3 py-1 rounded-lg text-sm transition-colors ${
-                technologies.includes(tech)
-                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              {tech}
-            </button>
-          ))}
+          {quickTechs
+            .filter(tech => !technologies.includes(tech))
+            .map((tech) => (
+              <button
+                key={tech}
+                onClick={() => addTech(tech)}
+                className="px-3 py-1 rounded-lg text-sm transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200"
+              >
+                {tech}
+              </button>
+            ))}
         </div>
       </div>
     </div>
