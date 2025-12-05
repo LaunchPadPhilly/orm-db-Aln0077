@@ -1,4 +1,14 @@
+import { Montserrat } from 'next/font/google'
 import './globals.css'
+import Navbar from './components/Navbar'
+import CircleTransition from './components/PageTransition'
+import Footer from './components/Footer'
+
+const montserrat = Montserrat({ 
+  subsets: ['latin'],
+  weight: ['300', '900'],
+  display: 'swap',
+})
 
 export const metadata = {
   title: 'My Portfolio',
@@ -7,15 +17,17 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body className="bg-gray-50">
-        {/* TODO: Import and add your Navbar component here */}
+    <html lang="en" className={montserrat.className}>
+      <body>
+        <Navbar />
         
         <main className="flex-grow">
-          {children}
+          <CircleTransition>
+            {children}
+          </CircleTransition>
         </main>
         
-        {/* TODO: Import and add your Footer component here */}
+        <Footer />
       </body>
     </html>
   )
