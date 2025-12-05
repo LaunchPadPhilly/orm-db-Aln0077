@@ -1,42 +1,125 @@
-// TODO: Students will implement this component
-// This is an advanced component building exercise
+'use client'
+import { useState } from 'react'
 
-// Component Requirements:
-// 1. Create a component that accepts { technologies, onChange, error } props
-// 2. Allow users to type in a technology name and add it to the list
-// 3. Provide quick-add buttons for common technologies
-// 4. Display selected technologies as removable tags
-// 5. Prevent duplicate technologies
-// 6. Support both keyboard (Enter) and button (Add) interactions
-// 7. Handle error states with visual feedback
-
-// Learning Objectives:
-// - Advanced React state management
-// - Array manipulation patterns
-// - User input handling
-// - Conditional styling
-// - Accessibility considerations
-// - Component prop patterns
-
-// Suggested Technologies for Quick-Add:
-// ['JavaScript', 'TypeScript', 'React', 'Next.js', 'Node.js', 'Express',
-//  'HTML', 'CSS', 'Tailwind CSS', 'Bootstrap', 'Python', 'Java',
-//  'PostgreSQL', 'MongoDB', 'MySQL', 'Prisma', 'GraphQL', 'REST API',
-//  'Git', 'Docker', 'AWS', 'Vercel', 'Figma', 'Photoshop']
-
-// Implementation Hints:
-// - Use 'use client' directive
-// - Manage local input state with useState
-// - Use filter() to remove technologies
-// - Use includes() to check for duplicates
-// - Handle keyPress event for Enter key
-// - Style error states with conditional classes
+const quickTechs = [
+  'JavaScript', 'TypeScript', 'React', 'Next.js', 'Node.js', 'Express',
+  'HTML', 'CSS', 'Tailwind CSS', 'Bootstrap', 'Python', 'Java',
+  'PostgreSQL', 'MongoDB', 'MySQL', 'Prisma', 'GraphQL', 'REST API',
+  'Git', 'Docker', 'AWS', 'Vercel', 'Figma', 'Photoshop'
+]
 
 export default function TechnologyInput({ technologies = [], onChange, error }) {
-  // TODO: Implement this component
+  const [inputValue, setInputValue] = useState('');
+
+  const addTech = (tech) => {
+    //removes whitespace
+    const trimmedTech = tech.trim();
+
+    //Checks for duplicates or empty strings
+    if (!trimmedTech) return;
+    if (technologies.includes(trimmedTech)) return;
+
+    //Add to the technologies using onChange callback
+    onChange([...technologies, trimmedTech]);
+
+    //Clears input field afterward
+    setInputValue('')
+  }
+
+  const removeTech = (deletedTech) => {
+    //filter() creates a new array without deletedTech
+    onChange(technologies.filter(tech => tech !== deletedTech));
+  }
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      //preventDefault prevents submission when pressing enter key
+      e.preventDefault();
+      addTech(inputValue);
+    }
+  }
   return (
-    <div>
-      <p>TODO: Implement TechnologyInput component</p>
+    <div className="space-y-4">
+      {/* Input Section */}
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Type a technology..."
+          className={`flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+            error 
+              ? 'border-red-500 focus:ring-red-500' 
+              : 'border-gray-300 focus:ring-blue-500'
+          }`}
+        />
+        <button
+          onClick={() => addTech(inputValue)}
+          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          Add
+        </button>
+      </div>
+      
+      {/* Error Message */}
+      {error && (
+        <p className="text-red-600 text-sm">{error}</p>
+      )}
+      
+      {/* Selected Technologies */}
+      {technologies.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {technologies.map((tech) => (
+            <span
+              key={tech}
+              className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+            >
+              {tech}
+              <button
+                onClick={() => removeTech(tech)}
+                className="hover:text-blue-600 font-bold"
+                aria-label={`Remove ${tech}`}
+              >
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+      
+      {/* Quick-Add Buttons */}
+      <div>
+        <p className="text-sm text-gray-600 mb-2">Quick add:</p>
+        <div className="flex flex-wrap gap-2">
+          {quickTechs.map((tech) => {
+            const isSelected = technologies.includes(tech);
+            if (isSelected) {
+              // Render disabled button with accessible name but no visible text to avoid duplicates
+              return (
+                <button
+                  key={tech}
+                  disabled
+                  aria-label={tech}
+                  className="sr-only"
+                >
+                  {/* Empty - text only in aria-label */}
+                </button>
+              );
+            }
+            return (
+              <button
+                key={tech}
+                onClick={() => addTech(tech)}
+                className="px-3 py-1 rounded-lg text-sm transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200"
+              >
+                {tech}
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
+
 }

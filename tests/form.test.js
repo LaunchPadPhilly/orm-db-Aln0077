@@ -196,7 +196,7 @@ describe('TechnologyInput Component', () => {
     
     const input = screen.getByPlaceholderText(/Type a technology/)
     fireEvent.change(input, { target: { value: 'Angular' } })
-    fireEvent.keyPress(input, { key: 'Enter' })
+    fireEvent.keyDown(input, { key: 'Enter' })
     
     expect(mockOnChange).toHaveBeenCalledWith(['Angular'])
   })

@@ -1,46 +1,99 @@
-<<<<<<< HEAD
-export default function Projects() {
-  return (
-    <div className="min-h-screen p-8">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-5xl font-bold mb-12">My Projects</h1>
-        
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
-          {/* Project Card Example - Duplicate this 3 times */}
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            <div className="h-48 bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
-              <p className="text-white font-bold text-xl">Project Image Here</p>
-            </div>
-            <div className="p-6">
-              <h3 className="text-2xl font-bold mb-2">Project Title</h3>
-              <p className="text-gray-600 mb-4">
-                Write a brief description of your project here.
-              </p>
-              <div className="flex gap-2">
-                <span className="text-sm bg-gray-200 px-3 py-1 rounded">Tech 1</span>
-                <span className="text-sm bg-gray-200 px-3 py-1 rounded">Tech 2</span>
-              </div>
-            </div>
-          </div>
+'use client';
 
-          {/* TODO: Add 2 more project cards */}
-          
-        </div>
-
-=======
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import ProjectForm from './components/ProjectForm';
 
 export default function Projects() {
-  // TODO: Students will implement the following:
-  // 1. Convert this server component to a client component
-  // 2. Add state management for projects, loading, and form visibility
-  // 3. Implement API fetch functions to get projects from the database
-  // 4. Add project creation functionality using the ProjectForm component
-  // 5. Handle loading and error states
+  // State for projects data
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // For now, show placeholder content
-  const placeholderProjects = [];
+  // Fetch projects from API on component mount
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  // Fetch all projects from the database
+  const fetchProjects = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch('/api/projects');
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch projects: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      setProjects(data);
+    } catch (err) {
+      console.error('Error fetching projects:', err);
+      setError(err.message || 'Failed to load projects. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle project creation
+  const handleCreateProject = async (formData) => {
+    try {
+      setIsSubmitting(true);
+      setError(null);
+      
+      const response = await fetch('/api/projects', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Failed to create project: ${response.status}`);
+      }
+
+      const newProject = await response.json();
+      setProjects([newProject, ...projects]); // Add new project to the top
+      setShowForm(false);
+    } catch (err) {
+      console.error('Error creating project:', err);
+      throw err; // Re-throw so form can display the error
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Handle project deletion
+  const handleDeleteProject = async (projectId) => {
+    if (!confirm('Are you sure you want to delete this project?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/projects/${projectId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Failed to delete project: ${response.status}`);
+      }
+
+      // Remove project from state
+      setProjects(projects.filter(p => p.id !== projectId));
+    } catch (err) {
+      console.error('Error deleting project:', err);
+      setError(err.message || 'Failed to delete project. Please try again.');
+    }
+  };
+
+  const placeholderProjects = projects;
 
   return (
     <div className="min-h-screen p-8">
@@ -48,14 +101,40 @@ export default function Projects() {
         {/* Header - students will add "Add New Project" button here */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4">
           <h1 className="text-5xl font-bold">My Projects</h1>
-          {/* TODO: Add "Add New Project" button that shows/hides the form */}
+          <button
+            onClick={() => setShowForm(true)}
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+          >
+            + Add New Project
+          </button>
         </div>
 
-        {/* TODO: Add ProjectForm component here */}
-        {/* The form should be conditionally rendered based on showForm state */}
+        {/* ProjectForm component */}
+        <ProjectForm 
+          isOpen={showForm} 
+          onSubmit={handleCreateProject}
+          onCancel={() => setShowForm(false)}
+        />
+
+        {/* Error message */}
+        {error && (
+          <div className="mb-8 p-4 bg-red-50 border-2 border-red-200 rounded-lg text-red-800">
+            <p className="font-semibold">Error: {error}</p>
+          </div>
+        )}
+
+        {/* Loading state */}
+        {loading && (
+          <div className="text-center py-12">
+            <div className="inline-block">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <p className="mt-4 text-gray-600">Loading your projects...</p>
+            </div>
+          </div>
+        )}
 
         {/* Projects Grid */}
-        {placeholderProjects.length > 0 ? (
+        {!loading && placeholderProjects.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
             {placeholderProjects.map((project) => (
               <div key={project.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
@@ -82,12 +161,12 @@ export default function Projects() {
                       </span>
                     ))}
                     {project.technologies?.length > 3 && (
-                      <span className="text-sm text-gray-500 px-3 py-1">
+                      <span className="text-sm text-black-700 px-3 py-1">
                         +{project.technologies.length - 3} more
                       </span>
                     )}
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
                     <Link 
                       href={`/projects/${project.id}`}
                       className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
@@ -104,12 +183,18 @@ export default function Projects() {
                         Live Demo
                       </a>
                     )}
+                    <button
+                      onClick={() => handleDeleteProject(project.id)}
+                      className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
               </div>
             ))}
           </div>
-        ) : (
+        ) : !loading && (
           /* Empty State - Students will enhance this */
           <div className="text-center py-12">
             <div className="mb-8">
@@ -130,24 +215,8 @@ export default function Projects() {
             </div>
           </div>
         )}
-
-        {/* Project Ideas */}
->>>>>>> solution
-        <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-6">
-          <h3 className="font-bold text-yellow-900 mb-2">💡 Project Ideas:</h3>
-          <ul className="text-yellow-800 space-y-1">
-            <li>• Past school projects</li>
-            <li>• Personal coding projects</li>
-            <li>• Design work or creative projects</li>
-            <li>• Future projects you want to build (coming soon!)</li>
-          </ul>
-        </div>
       </div>
     </div>
-<<<<<<< HEAD
-  )
-}
-=======
   );
 }
 
@@ -158,4 +227,3 @@ export default function Projects() {
 // 4. Handle async operations and error states
 // 5. Build interactive user interfaces
 // 6. Practice component composition
->>>>>>> solution

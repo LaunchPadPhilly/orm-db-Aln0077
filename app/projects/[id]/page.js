@@ -5,6 +5,16 @@ import { notFound } from 'next/navigation';
 export default async function ProjectDetail({ params }) {
   const { id } = params;
 
+  const response = await fetch(`http://localhost:3000/api/projects/${id}`);
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      notFound();
+    }
+    throw new Error('Failed to fetch project');
+  }
+
+  const project = await response.json();
   // TODO: Fetch the specific project from your API
   // Instructions for students:
   // 1. Use fetch() to get data from /api/projects/[id]
@@ -24,8 +34,6 @@ export default async function ProjectDetail({ params }) {
   // 
   // const project = await response.json();
 
-  // For now, return placeholder until students implement the API
-  const project = null;
 
   if (!project) {
     return (
