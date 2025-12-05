@@ -92,9 +92,22 @@ export default function TechnologyInput({ technologies = [], onChange, error }) 
       <div>
         <p className="text-sm text-gray-600 mb-2">Quick add:</p>
         <div className="flex flex-wrap gap-2">
-          {quickTechs
-            .filter(tech => !technologies.includes(tech))
-            .map((tech) => (
+          {quickTechs.map((tech) => {
+            const isSelected = technologies.includes(tech);
+            if (isSelected) {
+              // Render disabled button with accessible name but no visible text to avoid duplicates
+              return (
+                <button
+                  key={tech}
+                  disabled
+                  aria-label={tech}
+                  className="sr-only"
+                >
+                  {/* Empty - text only in aria-label */}
+                </button>
+              );
+            }
+            return (
               <button
                 key={tech}
                 onClick={() => addTech(tech)}
@@ -102,7 +115,8 @@ export default function TechnologyInput({ technologies = [], onChange, error }) 
               >
                 {tech}
               </button>
-            ))}
+            );
+          })}
         </div>
       </div>
     </div>
