@@ -30,6 +30,13 @@ export default defineConfig({
     include: ['**/*.test.{js,jsx,ts,tsx}'],
     globals: true,
     setupFiles: './tests/setup.jsx',
+    // Run tests sequentially to avoid database race conditions
+    fileParallelism: false,
+    poolOptions: {
+      threads: {
+        singleThread: true,
+      },
+    },
   },
 
   resolve: {
